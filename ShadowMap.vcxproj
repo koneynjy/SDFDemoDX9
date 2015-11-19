@@ -45,8 +45,8 @@
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <ExecutablePath>$(DXSDK_DIR)\Utilities\bin\x86;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
-    <IncludePath>$(DXSDK_DIR)\Include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)\Lib\x86;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <IncludePath>XML;$(DXSDK_DIR)\Include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>Lib;$(DXSDK_DIR)\Lib\x86;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
@@ -65,7 +65,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d9.lib;d3dx9d.lib;dxguid.lib;DxErr.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;d3dx9d.lib;dxguid.lib;DxErr.lib;dinput8.lib;%(AdditionalDependencies);tinyxml_d.lib;</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -95,6 +95,14 @@
     <ClCompile Include="DrawableTex2D.cpp" />
     <ClCompile Include="GfxStats.cpp" />
     <ClCompile Include="Heightmap.cpp" />
+    <ClCompile Include="MeshLoader\baseDefine.cpp" />
+    <ClCompile Include="MeshLoader\Mesh.cpp" />
+    <ClCompile Include="MeshLoader\ModelFileParse.cpp" />
+    <ClCompile Include="MeshLoader\OBJLoader.cpp" />
+    <ClCompile Include="MeshLoader\submesh.cpp" />
+    <ClCompile Include="MeshLoader\TGALoader.cpp" />
+    <ClCompile Include="SDF.cpp" />
+    <ClCompile Include="sdf\AsyncWork.cpp" />
     <ClCompile Include="ShadowMapDemo.cpp" />
     <ClCompile Include="Sky.cpp" />
     <ClCompile Include="Terrain.cpp" />
@@ -104,10 +112,37 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="d3dApp.h" />
     <ClInclude Include="d3dUtil.h" />
+    <ClInclude Include="DeferredShading.h" />
     <ClInclude Include="DirectInput.h" />
     <ClInclude Include="DrawableTex2D.h" />
     <ClInclude Include="GfxStats.h" />
     <ClInclude Include="Heightmap.h" />
+    <ClInclude Include="MeshLoader\baseDefine.h" />
+    <ClInclude Include="MeshLoader\LoadOBJ.h" />
+    <ClInclude Include="MeshLoader\Mesh.h" />
+    <ClInclude Include="MeshLoader\ModelFileParse.h" />
+    <ClInclude Include="MeshLoader\submesh.h" />
+    <ClInclude Include="MeshLoader\TGALoader.h" />
+    <ClInclude Include="SDF.h" />
+    <ClInclude Include="SDFShadow.h" />
+    <ClInclude Include="sdf\AlignedAllocator.h" />
+    <ClInclude Include="sdf\AsyncWork.h" />
+    <ClInclude Include="sdf\Box.h" />
+    <ClInclude Include="sdf\BoxSphereBounds.h" />
+    <ClInclude Include="sdf\Config.h" />
+    <ClInclude Include="sdf\Float16.h" />
+    <ClInclude Include="sdf\Float32.h" />
+    <ClInclude Include="sdf\GraphicMath.h" />
+    <ClInclude Include="sdf\IntVector.h" />
+    <ClInclude Include="sdf\kDop.h" />
+    <ClInclude Include="sdf\Material.h" />
+    <ClInclude Include="sdf\MathUtil.h" />
+    <ClInclude Include="sdf\Matrix.h" />
+    <ClInclude Include="sdf\MeshUtilities.h" />
+    <ClInclude Include="sdf\RandomStream.h" />
+    <ClInclude Include="sdf\Sphere.h" />
+    <ClInclude Include="sdf\sse.h" />
+    <ClInclude Include="sdf\Vector.h" />
     <ClInclude Include="Sky.h" />
     <ClInclude Include="Table.h" />
     <ClInclude Include="Terrain.h" />

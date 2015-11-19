@@ -16,6 +16,12 @@
     <Filter Include="FX">
       <UniqueIdentifier>{60809c1c-4063-4c8f-84ae-5688d648e68b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MeshLoader">
+      <UniqueIdentifier>{395f785a-a3c9-497d-8817-d112dca21116}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDF">
+      <UniqueIdentifier>{37b2b9bf-3508-4e93-9db4-ea58ab74e119}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -51,6 +57,30 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MeshLoader\baseDefine.cpp">
+      <Filter>MeshLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader\Mesh.cpp">
+      <Filter>MeshLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader\ModelFileParse.cpp">
+      <Filter>MeshLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader\OBJLoader.cpp">
+      <Filter>MeshLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader\submesh.cpp">
+      <Filter>MeshLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader\TGALoader.cpp">
+      <Filter>MeshLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="sdf\AsyncWork.cpp">
+      <Filter>SDF</Filter>
+    </ClCompile>
+    <ClCompile Include="SDF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -84,6 +114,87 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SDFShadow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeferredShading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader\baseDefine.h">
+      <Filter>MeshLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader\LoadOBJ.h">
+      <Filter>MeshLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader\Mesh.h">
+      <Filter>MeshLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader\ModelFileParse.h">
+      <Filter>MeshLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader\submesh.h">
+      <Filter>MeshLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader\TGALoader.h">
+      <Filter>MeshLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\AlignedAllocator.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\AsyncWork.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\Box.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\BoxSphereBounds.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\Config.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\Float16.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\Float32.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\GraphicMath.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\IntVector.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\kDop.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\Material.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\MathUtil.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\Matrix.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\MeshUtilities.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\RandomStream.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\Sphere.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\sse.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="sdf\Vector.h">
+      <Filter>SDF</Filter>
+    </ClInclude>
+    <ClInclude Include="SDF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

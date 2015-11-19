@@ -15,6 +15,8 @@
 #include "Sky.h"
 #include "Vertex.h"
 #include "DrawableTex2D.h"
+#include "SDF.h"
+#include "io.h"
 
 struct SpotLight
 {
@@ -39,6 +41,8 @@ public:
 	void drawScene();
 	void drawShadowMap();
 	void buildFX();
+	void BuildModel();
+	void BuildCullingVolume(XMFLOAT3 lightDir);
 private:
 	GfxStats* mGfxStats;
 	 
@@ -73,6 +77,17 @@ private:
 	D3DXHANDLE   mhLight;
  
 	SpotLight mLight;
+
+	vector<LPDIRECT3DVOLUMETEXTURE9> mObjSDFSRV;
+	vector<SDFModel*> mObjSDF;
+	vector<IDirect3DVertexBuffer9*> mObjModelVB;
+	vector<IDirect3DIndexBuffer9*> mObjModelIB;
+	vector<UINT> mObjModelCnt;
+	vector<UINT> mObjModelVertexCnt;
+	vector<D3DXMATRIX> mObjModelMat;
+	vector<IDirect3DVertexBuffer9*> mObjCullingVolumeVB;
+	vector<IDirect3DIndexBuffer9*> mObjCullingVolumeIB;
+	vector<UINT> mObjCullingVolumeCnt;
 };
 
 
@@ -148,6 +163,7 @@ ShadowMapDemo::ShadowMapDemo(HINSTANCE hInstance, std::string winCaption, D3DDEV
 	mGfxStats->addTriangles(mSky->getNumTriangles());
 
 	buildFX();
+	BuildModel();
 
 	onResetDevice();
 }
@@ -330,6 +346,23 @@ void ShadowMapDemo::drawScene()
 		HR(mCarMesh->DrawSubset(j));
 	}
 
+
+//////////////////////////////////////////////////////////////////////
+	gd3dDevice->SetVertexDeclaration(VertexPNT::Decl);
+
+	for(int i = 50; i < 51; i++ )
+	{
+		HR(mFX->SetMatrix(mhWVP, &(mObjModelMat[i]*gCamera->viewProj())));
+		HR(mFX->SetMatrix(mhWorld, &mObjModelMat[i]));
+		gd3dDevice->SetStreamSource(0, mObjModelVB[i], 0, sizeof(VertexPNT));
+		gd3dDevice->SetIndices(mObjModelIB[i]);
+
+
+		gd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,
+			0,0,mObjModelVertexCnt[i],
+			0,mObjModelCnt[i] / 3);
+	}
+///////////////////////////////////////////////////////////////////////////
 	HR(mFX->EndPass());
 	HR(mFX->End());
  
@@ -373,8 +406,6 @@ void ShadowMapDemo::drawShadowMap()
 			HR(mCarMesh->DrawSubset(j));
 		}
 	}
-
-
 	HR(mFX->EndPass());
 	HR(mFX->End());
 
@@ -401,4 +432,84 @@ void ShadowMapDemo::buildFX()
 	mhEyePosW            = mFX->GetParameterByName(0, "gEyePosW");
 	mhTex                = mFX->GetParameterByName(0, "gTex");
 	mhShadowMap          = mFX->GetParameterByName(0, "gShadowMap");
+}
+
+
+void ShadowMapDemo::BuildModel()
+{
+	///////////
+	string file_name = "D:/lod/proxy/";
+	vector<CMesh> meshs;
+	string path = file_name + "*.*";
+	_finddata_t file;
+	long lf;
+	if ((lf = _findfirst(path.c_str(), &file)) == -1l)//_findfirst返回的是long型; long __cdecl _findfirst(const char *, struct _finddata_t *)
+		return;
+	else
+	{
+		while (_findnext(lf, &file) == 0)//int __cdecl _findnext(long, struct _finddata_t *);如果找到下个文件的名字成功的话就返回0,否则返回-1
+		{
+			if (file.attrib != _A_SUBDIR)
+			{
+				string name(file.name);
+				if (name != ".." && name != "." && name.length() > 6 &&
+					name.substr(name.length() - 6, 6) == ".model")  {
+						CMesh cmesh;
+						short x = 0, z = 0;
+						sscanf(name.substr(0, 4).c_str(), "%hx", &x);
+						sscanf(name.substr(4, 4).c_str(), "%hx", &z);
+						XMFLOAT3 pos = XMFLOAT3(x * 100 + 50.0f, 0, z * 100 + 50.0f);
+						cmesh.Init(file_name + name, "D:/", pos);
+						XMFLOAT4X4 world;
+						XMStoreFloat4x4(&world, XMMatrixTranslation(pos.x, pos.y, pos.z));
+						SDFModel *sdf = new SDFModel(cmesh);
+						meshs.push_back(std::move(cmesh));
+						mObjSDF.push_back(sdf);
+						//mObjModelMat.push_back(world);
+						std::string dds = file_name + name.substr(0, 9) + ".dds";
+						//std::wstring wdds(dds.length(), L' ');
+						//std::copy(dds.begin(), dds.end(), wdds.begin());
+						LPDIRECT3DVOLUMETEXTURE9 SDFMap = 0;
+						HR(D3DXCreateVolumeTextureFromFile(gd3dDevice, dds.c_str(),&SDFMap));
+						mObjSDFSRV.push_back(SDFMap);
+				}
+			}
+		}
+	}
+	_findclose(lf);
+	//cmesh.Init("D:/scene/common/zw/zwshu/slj_zwshu0020_wb.model", "D:/", XMFLOAT3(0, 0, 0));
+	////////////////////////////////////////////SDF///////////////////////
+
+	mObjModelVB.resize(meshs.size());
+	mObjModelIB.resize(meshs.size());
+	mObjModelCnt.resize(meshs.size());
+	mObjModelMat.resize(meshs.size());
+	mObjModelVertexCnt.resize(meshs.size());
+	for (int i = 0; i < meshs.size(); i++)
+	{
+		CMesh& cmesh = meshs[i];
+		INDEX_LIST &ib = cmesh.GetIndexList();
+		MESH_VERTEX &vb = cmesh.GetMeshVertex();
+		UINT count = ib.size();
+		gd3dDevice->CreateVertexBuffer(
+			sizeof(VertexPNT) * vb.size(),
+			0,
+			D3DFVF_XYZ| D3DFVF_NORMAL|D3DFVF_TEX0,
+			D3DPOOL_DEFAULT,
+			&mObjModelVB[i],
+			NULL
+			);
+		gd3dDevice->CreateIndexBuffer(
+			sizeof(UINT)* count,
+			0,
+			D3DFMT_INDEX32,
+			D3DPOOL_DEFAULT,
+			&mObjModelIB[i],
+			NULL
+			);
+
+		mObjModelVertexCnt[i] = vb.size();
+		mObjModelCnt[i] = count;
+		mObjModelMat[i] = *(D3DXMATRIX*)&cmesh.GetWorldTrans();
+	}
 }
