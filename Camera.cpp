@@ -19,7 +19,8 @@ Camera::Camera()
 	mRightW = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
 	mUpW    = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 	mLookW  = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
-
+	mFarZ= 0;
+	mNearZ = 0;
 	// Client should adjust to a value that makes sense for application's
 	// unit scale, and the object the camera is attached to--e.g., car, jet,
 	// human walking, etc.
@@ -61,6 +62,46 @@ D3DXVECTOR3& Camera::pos()
 	return mPosW;
 }
 
+float Camera::GetNearZ()const
+{
+	return mNearZ;
+}
+
+float Camera::GetFarZ()const
+{
+	return mFarZ;
+}
+
+float Camera::GetAspect()const
+{
+	return mAspect;
+}
+
+float Camera::GetFovY()const
+{
+	return mFovY;
+}
+
+float Camera::GetNearWindowWidth()const
+{
+	return mAspect * mNearWindowHeight;
+}
+
+float Camera::GetNearWindowHeight()const
+{
+	return mNearWindowHeight;
+}
+
+float Camera::GetFarWindowWidth()const
+{
+	return mAspect * mFarWindowHeight;
+}
+
+float Camera::GetFarWindowHeight()const
+{
+	return mFarWindowHeight;
+}
+
 void Camera::lookAt(D3DXVECTOR3& pos, D3DXVECTOR3& target, D3DXVECTOR3& up)
 {
 	D3DXVECTOR3 L = target - pos;
@@ -87,6 +128,12 @@ void Camera::lookAt(D3DXVECTOR3& pos, D3DXVECTOR3& target, D3DXVECTOR3& up)
 
 void Camera::setLens(float fov, float aspect, float nearZ, float farZ)
 {
+	mFovY = fov;
+	mAspect = aspect;
+	mFarZ = farZ;
+	mNearZ = nearZ;
+	mNearWindowHeight = 2.0f * mNearZ * tanf( 0.5f*mFovY );
+	mFarWindowHeight  = 2.0f * mFarZ * tanf( 0.5f*mFovY );
 	D3DXMatrixPerspectiveFovLH(&mProj, fov, aspect, nearZ, farZ);
 	buildWorldFrustumPlanes();
 	mViewProj = mView * mProj;
@@ -163,7 +210,10 @@ void Camera::update(float dt, Terrain* terrain, float offsetHeight)
 
 	// Move at mSpeed along net direction.
 	D3DXVec3Normalize(&dir, &dir);
-	D3DXVECTOR3 newPos = mPosW + dir*mSpeed*dt;
+	float scale = dt;
+	if (gDInput->keyDown(DIK_LSHIFT))
+		scale *= 20;
+	D3DXVECTOR3 newPos = mPosW + dir*mSpeed*scale;
 
 	if( terrain != 0)
 	{
@@ -192,24 +242,26 @@ void Camera::update(float dt, Terrain* terrain, float offsetHeight)
 	
 
 	// We rotate at a fixed speed.
-	float pitch  = gDInput->mouseDY() / 150.0f;
-	float yAngle = gDInput->mouseDX() / 150.0f;
+	if(gDInput->mouseButtonDown(0))
+	{
+
+		float pitch  = gDInput->mouseDY() / 150.0f;
+		float yAngle = gDInput->mouseDX() / 150.0f;
+
+		// Rotate camera's look and up vectors around the camera's right vector.
+		D3DXMATRIX R;
+		D3DXMatrixRotationAxis(&R, &mRightW, pitch);
+		D3DXVec3TransformCoord(&mLookW, &mLookW, &R);
+		D3DXVec3TransformCoord(&mUpW, &mUpW, &R);
 
 
-	// Rotate camera's look and up vectors around the camera's right vector.
-	D3DXMATRIX R;
-	D3DXMatrixRotationAxis(&R, &mRightW, pitch);
-	D3DXVec3TransformCoord(&mLookW, &mLookW, &R);
-	D3DXVec3TransformCoord(&mUpW, &mUpW, &R);
-
-
-	// Rotate camera axes about the world's y-axis.
-	D3DXMatrixRotationY(&R, yAngle);
-	D3DXVec3TransformCoord(&mRightW, &mRightW, &R);
-	D3DXVec3TransformCoord(&mUpW, &mUpW, &R);
-	D3DXVec3TransformCoord(&mLookW, &mLookW, &R);
-
-
+		// Rotate camera axes about the world's y-axis.
+		D3DXMatrixRotationY(&R, yAngle);
+		D3DXVec3TransformCoord(&mRightW, &mRightW, &R);
+		D3DXVec3TransformCoord(&mUpW, &mUpW, &R);
+		D3DXVec3TransformCoord(&mLookW, &mLookW, &R);
+	}
+	
 	// Rebuild the view matrix to reflect changes.
 	buildView();
 	buildWorldFrustumPlanes();

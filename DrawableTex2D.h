@@ -16,7 +16,8 @@ public:
 	~DrawableTex2D();
 
 	IDirect3DTexture9* d3dTex();
-
+	IDirect3DSurface9* d3dSurface();
+	IDirect3DSurface9* d3dSurfaceLod(int l){return mMipSurfaces[l];};
 	void beginScene();
 	void endScene();
 
@@ -28,10 +29,10 @@ private:
 	DrawableTex2D(const DrawableTex2D& rhs);
 	DrawableTex2D& operator=(const DrawableTex2D& rhs);
 
-private:
+public:
 	IDirect3DTexture9*    mTex;
 	ID3DXRenderToSurface* mRTS;
-	IDirect3DSurface9*    mTopSurf;
+	IDirect3DSurface9**   mMipSurfaces;
 
 	UINT         mWidth;
 	UINT         mHeight;

@@ -149,6 +149,9 @@ void D3DApp::initDirect3D()
 		devBehaviorFlags,   // vertex processing
 	    &md3dPP,            // present parameters
 	    &gd3dDevice));      // return created device
+
+	HR(gd3dDevice->GetRenderTarget(0, &mBackBuffer));
+	HR(gd3dDevice->GetDepthStencilSurface(&mDepthStencilBuffer));
 }
 
 int D3DApp::run()
@@ -282,9 +285,11 @@ LRESULT D3DApp::msgProc(UINT msg, WPARAM wParam, LPARAM lParam)
 		md3dPP.BackBufferWidth  = clientRect.right;
 		md3dPP.BackBufferHeight = clientRect.bottom;
 		onLostDevice();
+// 		HRESULT h;
+// 		while((h = gd3dDevice->TestCooperativeLevel()) != D3DERR_DEVICENOTRESET);
 		HR(gd3dDevice->Reset(&md3dPP));
+		//HR();
 		onResetDevice();
-
 		return 0;
 
 	// WM_CLOSE is sent when the user presses the 'X' button in the

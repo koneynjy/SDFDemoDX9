@@ -39,8 +39,8 @@ technique SkyTech
         vertexShader = compile vs_3_0 SkyVS();
         pixelShader  = compile ps_3_0 SkyPS();
 		CullMode = None;
-		ZFunc = Always; // Always write sky to depth buffer
-		StencilEnable = true;
+		ZFunc = LessEqual; // Always write sky to depth buffer
+		StencilEnable = false;
 		StencilFunc   = Always;
 		StencilPass   = Replace;
 		StencilRef    = 0; // clear to zero

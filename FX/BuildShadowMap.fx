@@ -27,7 +27,7 @@ uniform extern float4x4 gWorldInvTrans;
 uniform extern float4x4 gProjTexMtx;
 uniform extern float4x4 gWVP;
 uniform extern Mtrl     gMtrl;
-uniform extern DirLight gLight;
+uniform extern SpotLight gLight;
 uniform extern float3   gEyePosW;
 uniform extern float3   gLightPosL;
  

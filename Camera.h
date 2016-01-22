@@ -23,6 +23,15 @@ public:
 	const D3DXVECTOR3& right() const;
 	const D3DXVECTOR3& up() const;
 	const D3DXVECTOR3& look() const;
+	float GetFarZ()const;
+	float GetNearZ()const;
+	float GetAspect()const;
+	float GetFovY()const;
+	float GetNearWindowWidth()const;
+	float GetNearWindowHeight()const;
+	float GetFarWindowWidth()const;
+	float GetFarWindowHeight()const;
+
 
 	D3DXVECTOR3& pos();
 
@@ -51,7 +60,14 @@ protected:
 	D3DXVECTOR3 mLookW;
 
 	float mSpeed;
-
+	float mFarZ;
+	float mNearZ;
+	float mFarWindowHeight;
+	float mNearWindowHeight;
+	float mFarWindowWidth;
+	float mNearWindowWidth;
+	float mFovY ;
+	float mAspect ;
 	// Frustum Planes
 	D3DXPLANE mFrustumPlanes[6]; // [0] = near
 	                             // [1] = far

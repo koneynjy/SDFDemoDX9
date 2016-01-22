@@ -2,6 +2,7 @@
 #define _SDFSHADOW
 #include "d3dUtil.h"
 #include "Camera.h"
+#include "DrawableTex2D.h"
 
 class SDFShadow
 {
@@ -11,23 +12,36 @@ public:
 
 	void SetRenderTarget();
 	void ClearShadow();
-
-	void GetCullingVolume(XMFLOAT3&center, XMFLOAT3& extend, 
-		XMFLOAT3& lightDir,XMFLOAT4X4& worldMat);
+	void GetCullingVolume(D3DXVECTOR3&center, D3DXVECTOR3& extend, 
+		D3DXVECTOR3& lightDir,D3DXMATRIX& worldMat);
+	void SDFShadowPassBegin();
+	void SDFShadowPassDraw();
+	void OnLostDevice();
+	void OnResetDevice();
 	UINT mWidth;
 	UINT mHeight;
 
-	D3DXHANDLE mSDFShadowSRV;
-	D3DXHANDLE mSDFShadowRTV;
-
-	D3DXHANDLE mPreSDFShadowSRV;
-	D3DXHANDLE mPreSDFShadowRTV;
+	DrawableTex2D* mSDFShadowMap;
 
 	D3DVIEWPORT9 mViewport;
 
-	ID3D11Buffer* mVB;
-	ID3D11Buffer* mIB;
+	ID3DXEffect* SDFShadowFX;
+	D3DXHANDLE SDFShadowTech;
+	D3DXHANDLE ViewProj;
+	D3DXHANDLE EyePosW;
+	D3DXHANDLE FarClipDist;
+	D3DXHANDLE LightDir;
+	D3DXHANDLE SDFToWordInv0;
+	D3DXHANDLE SDFBounds0;
+	D3DXHANDLE SDFRes0;
+	D3DXHANDLE SDF0;
+	D3DXHANDLE DepthMap;
+	D3DXHANDLE GBuffer0;
+
+	IDirect3DVertexBuffer9* mCullingVolumeVB;
+	IDirect3DIndexBuffer9* mCullingVolumeIB;
 	UINT mIndexCount;
+	UINT mVertexCount;
 
 };
 

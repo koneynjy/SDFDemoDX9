@@ -50,7 +50,7 @@ bool OBJLoader::Load(string file_name,
 	vector<XMFLOAT3> vb;
 	vector<XMFLOAT3> nb;
 	vector<XMFLOAT2> tb;
-	map<ID, USHORT> ibmap;
+	map<ID, UINT> ibmap;
 	vector<ID> ib;
 	ifstream fin(file_name);
 	//vector<XMFLOAT3> testvb0;
@@ -72,7 +72,7 @@ bool OBJLoader::Load(string file_name,
 			else if (s[0] == 'f')
 			{
 				UINT i[9];
-				sscanf(sub.c_str(), "%u/%u/%u %u/%u/%u %u/%u/%u", 
+				sscanf(sub.c_str(), "%d/%d/%d %d/%d/%d %d/%d/%d", 
 					i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8);
 				for (int ii = 0; ii < 9; ii+=3)
 				{

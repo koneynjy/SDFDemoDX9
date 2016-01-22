@@ -122,7 +122,7 @@ float4 LightShadowPS(float3 posW    : TEXCOORD0,
 	toEyeW  = normalize(toEyeW);
 	
 	// Light vector is from pixel to spotlight position.
-	float3 lightVecW = normalize(gLight.posW - posW);
+	float3 lightVecW = normalize(-gLight.dirW);//normalize(gLight.posW - posW);
 	
 	// Compute the reflection vector.
 	float3 r = reflect(-lightVecW, normalW);
@@ -139,10 +139,10 @@ float4 LightShadowPS(float3 posW    : TEXCOORD0,
 	float3 ambient = gMtrl.ambient*gLight.ambient;
 	
 	// Compute spotlight coefficient.
-	float spot = pow(max( dot(-lightVecW, gLight.dirW), 0.0f), gLight.spotPower);
+	float spot = 1.0f;//pow(max( dot(-lightVecW, gLight.dirW), 0.0f), gLight.spotPower);
 	
 	// Sample decal map.
-	float4 texColor = tex2D(TexS, tex0); 
+	float4 texColor = float4(1.0f,1.0f,1.0f,0);//tex2D(TexS, tex0); 
 	
 	// Project the texture coords and scale/offset to [0, 1].
 	projTex.xy /= projTex.w;            
@@ -169,6 +169,7 @@ float4 LightShadowPS(float3 posW    : TEXCOORD0,
                               lerp( s2, s3, lerps.x ),
                               lerps.y );
 	
+	//float shadowCoeff = 1.0f;
 	// Light/Texture pixel.  Note that shadow coefficient only affects diffuse/spec.
 	float3 litColor = spot*ambient*texColor.rgb + spot*shadowCoeff*(diffuse*texColor.rgb + spec);
 	

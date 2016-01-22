@@ -1,6 +1,6 @@
 #ifndef _CONFIG
 #define _CONFIG
-
+#define _HALF
 #define MS_ALIGN(n) __declspec(align(n))
 
 #define FORCEINLINE __forceinline

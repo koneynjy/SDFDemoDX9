@@ -57,6 +57,8 @@ protected:
 	IDirect3D9*           md3dObject;
 	bool                  mAppPaused;
 	D3DPRESENT_PARAMETERS md3dPP;
+	IDirect3DSurface9*	  mBackBuffer;
+	IDirect3DSurface9*	  mDepthStencilBuffer;
 };
 
 // Globals for convenient access.
