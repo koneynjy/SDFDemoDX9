@@ -2,6 +2,7 @@ Textures/
 Models/
 Release/
 Debug/
+lod/
 x64/
 *.sdf
 *.obj

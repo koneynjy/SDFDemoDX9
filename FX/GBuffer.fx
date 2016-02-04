@@ -55,7 +55,7 @@ void PS(VertexOut pin
 	pin.NormalW = normalize(pin.NormalW);
 	c0 = StoreGBufferRT0(pin.NormalW, gMtrl.specPower);
 	c1 = StoreGBufferRT1(gMtrl.diffuse.xyz, gMtrl.spec.xyz);
-	c2 = float4(pin.z / gFarClipDist, 0,0,0);
+	c2 = float4(pin.z, 0,0,0);
 	//z = c2;
 }
 

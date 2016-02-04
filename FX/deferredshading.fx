@@ -116,8 +116,8 @@ struct VertexOut
 VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
-	vout.viewDirW = mul(vin.PosH, (float3x3)gViewInv);//transform view space point to World vector
-	//vin.PosH.xy /= abs(vin.PosH.xy);//to -1 ~ 1
+	vout.viewDirW = mul(vin.PosH, (float3x3)gViewInv) / vin.PosH.z;//transform view space point to World vector
+	vin.PosH.xy /= abs(vin.PosH.xy);//to -1 ~ 1
 	vout.PosH = float4(vin.PosH.xy, 1.0f, 1.0f);
 	vout.uv = vin.PosH.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);//screen cord uv
 
@@ -127,7 +127,7 @@ VertexOut VS(VertexIn vin)
 float4 PS(VertexOut pin) : COLOR0
 {
 	float depth = tex2D(TexDepth, pin.uv).r;
-	float3 v = pin.viewDirW;
+	float3 v = pin.viewDirW * depth;
 	float3 posW = v + gEyePosW;//ReBuild World Position
 	float4 gb0 = tex2D(TexGBuffer0, pin.uv);
 	float4 gb1 = tex2D(TexGBuffer1, pin.uv);

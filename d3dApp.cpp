@@ -49,6 +49,8 @@ HWND D3DApp::getMainWnd()
 	return mhMainWnd;
 }
 
+static int initw = 1280, inith = 720;
+
 void D3DApp::initMainWindow()
 {
 	WNDCLASS wc;
@@ -71,7 +73,7 @@ void D3DApp::initMainWindow()
 
 	// Default to a window with a client area rectangle of 800x600.
 
-	RECT R = {0, 0, 800, 600};
+	RECT R = {0, 0, initw, inith};
 	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
 	mhMainWnd = CreateWindow("D3DWndClassName", mMainWndCaption.c_str(), 
 		WS_OVERLAPPEDWINDOW, 100, 100, R.right, R.bottom, 
@@ -345,11 +347,11 @@ void D3DApp::enableFullScreenMode(bool enable)
 		if( md3dPP.Windowed ) 
 			return;
 
-		RECT R = {0, 0, 800, 600};
+		RECT R = {0, 0, initw, inith};
 		AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
 		md3dPP.BackBufferFormat = D3DFMT_UNKNOWN;
-		md3dPP.BackBufferWidth  = 800;
-		md3dPP.BackBufferHeight = 600;
+		md3dPP.BackBufferWidth  = initw;
+		md3dPP.BackBufferHeight = inith;
 		md3dPP.Windowed         = true;
 	
 		// Change the window style to a more windowed friendly style.

@@ -36,7 +36,7 @@ DeferredShading::DeferredShading(UINT width, UINT height)
 	gSDFShadow			= DeferredShadingFX->GetParameterByName(0, "gSDFShadow");
 
 
-	mDepthMap = new DrawableTex2D(mWidth, mHeight, 8, D3DFMT_R32F, false, D3DFMT_D24S8, vp, false);
+	mDepthMap = new DrawableTex2D(mWidth, mHeight, 5, D3DFMT_R32F, false, D3DFMT_D24S8, vp, false);
 	mGBuffer0 = new DrawableTex2D(mWidth, mHeight, 1, D3DFMT_A8R8G8B8, false, D3DFMT_D24S8, vp, false);
 	mGBuffer1 = new DrawableTex2D(mWidth, mHeight, 1, D3DFMT_A8R8G8B8, false, D3DFMT_D24S8, vp, false);
 	

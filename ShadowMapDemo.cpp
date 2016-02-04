@@ -21,6 +21,7 @@
 #include "MathHelper.h"
 #include "GeometryGenerator.h"
 #include "SDFShadow.h"
+#include "SAO.h"
 
 struct SpotLight
 {
@@ -59,6 +60,7 @@ public:
 private:
 	GfxStats* mGfxStats;
 
+	SAO* mSAO;
 	DeferredShading *mDeferredShading;
 	SDFShadow *mSDFShadow; 
 
@@ -117,6 +119,7 @@ private:
 	ID3DXEffect* mDebugTexFX;
 	D3DXHANDLE   mhViewARGBTech;
 	D3DXHANDLE   mhTexture;
+	D3DXHANDLE   mhRes;
 
 	IDirect3DVertexBuffer9* mDebugTexVB;
 	IDirect3DIndexBuffer9* mDebugTexIB;
@@ -194,7 +197,8 @@ ShadowMapDemo::ShadowMapDemo(HINSTANCE hInstance, std::string winCaption, D3DDEV
 	// Initialize camera.
 	gCamera->pos().y = 20.0f;
 	gCamera->pos().z = -100.0f;
-	gCamera->pos() = D3DXVECTOR3(4350.0f, 300, -550.0f);
+	//gCamera->pos() = D3DXVECTOR3(4350.0f, 300, -550.0f);
+	gCamera->pos() = D3DXVECTOR3(2000.0f, 25, 500);
 	gCamera->setSpeed(50.0f);
 
 // 	mGfxStats->addVertices(mSceneMesh->GetNumVertices());
@@ -212,6 +216,7 @@ ShadowMapDemo::ShadowMapDemo(HINSTANCE hInstance, std::string winCaption, D3DDEV
 	BuildQuadPlane();
 	mDeferredShading = new DeferredShading(md3dPP.BackBufferWidth, md3dPP.BackBufferHeight);
 	mSDFShadow = new SDFShadow(md3dPP.BackBufferWidth, md3dPP.BackBufferHeight);
+	mSAO = new SAO(md3dPP.BackBufferWidth, md3dPP.BackBufferHeight);
 	onResetDevice();
 	mDeferredShading->InitQuad();
 	
@@ -283,6 +288,7 @@ void ShadowMapDemo::onLostDevice()
 	mShadowMap->onLostDevice();
 	mDeferredShading->onLostDeivce();
 	mSDFShadow->OnLostDevice();
+	mSAO->OnLostDevice();
 	HR(mFX->OnLostDevice());
 	HR(mDebugTexFX->OnLostDevice());
 }
@@ -294,6 +300,7 @@ void ShadowMapDemo::onResetDevice()
 	mShadowMap->onResetDevice();
 	mDeferredShading->onResetDevice();
 	mSDFShadow->OnResetDevice();
+	mSAO->OnResetDevice();
 	HR(mFX->OnResetDevice());
 	HR(mDebugTexFX->OnResetDevice());
 
@@ -301,7 +308,7 @@ void ShadowMapDemo::onResetDevice()
 	// possibly change after a reset.  So rebuild the projection matrix.
 	float w = (float)md3dPP.BackBufferWidth;
 	float h = (float)md3dPP.BackBufferHeight;
-	gCamera->setLens(D3DX_PI * 0.25f, w/h, 1.0f, 2000.0f);
+	gCamera->setLens(D3DX_PI * 0.25f, w/h, 1.0f, 500.0);
 }
 
 void ShadowMapDemo::updateScene(float dt)
@@ -359,26 +366,26 @@ void ShadowMapDemo::BuildFullScreenQuad()
 	// vertices of all the meshes into one vertex buffer.
 	//
 
-	std::vector<VertexPos> vertices(quad.Vertices.size());
+	std::vector<VertexPT> vertices(quad.Vertices.size());
 
 	for(UINT i = 0; i < quad.Vertices.size(); ++i)
 	{
 		vertices[i].pos    = quad.Vertices[i].Position;
 // 		vertices[i].normal = quad.Vertices[i].Normal;
-// 		vertices[i].tex0   = quad.Vertices[i].TexC;
+ 		vertices[i].tex0   = quad.Vertices[i].TexC;
 	}
 
 	HR(gd3dDevice->CreateVertexBuffer(
-		sizeof(VertexPos) * vertices.size(),
+		sizeof(VertexPT) * vertices.size(),
 		0,
-		D3DFVF_XYZ,
+		D3DFVF_XYZ | D3DFVF_TEX0,
 		D3DPOOL_MANAGED,
 		&mDebugTexVB,
 		NULL
 		));
 	void *tvb;
-	HR(mDebugTexVB->Lock(0, sizeof(VertexPos) * vertices.size(), &tvb, 0));
-	memcpy(tvb, &vertices[0], sizeof(VertexPos) * vertices.size());
+	HR(mDebugTexVB->Lock(0, sizeof(VertexPT) * vertices.size(), &tvb, 0));
+	memcpy(tvb, &vertices[0], sizeof(VertexPT) * vertices.size());
 	HR(mDebugTexVB->Unlock());
 	std::vector<UINT> &Indices = quad.Indices;
 	HR(gd3dDevice->CreateIndexBuffer(
@@ -573,6 +580,7 @@ void ShadowMapDemo::buildFX()
 	// Obtain handles.
 	mhViewARGBTech       = mDebugTexFX->GetTechniqueByName("ViewArgbTech");
 	mhTexture			 = mDebugTexFX->GetParameterByName(0, "gTexture");
+	mhRes				 = mDebugTexFX->GetParameterByName(0, "gRes");
 
 	errors = 0;
 	HR(D3DXCreateEffectFromFile(gd3dDevice, "FX/hiz.fx", 
@@ -591,7 +599,7 @@ void ShadowMapDemo::buildFX()
 void ShadowMapDemo::BuildModel()
 {
 	///////////
-	string file_name = "D:/lod/proxy/";
+	string file_name = "./lod/proxy/";
 	vector<CMesh> meshs;
 	string path = file_name + "*.*";
 	_finddata_t file;
@@ -623,8 +631,8 @@ void ShadowMapDemo::BuildModel()
 						//std::wstring wdds(dds.length(), L' ');
 						//std::copy(dds.begin(), dds.end(), wdds.begin());
 						LPDIRECT3DVOLUMETEXTURE9 SDFMap = 0;
-						HR(D3DXCreateVolumeTextureFromFile(gd3dDevice, dds.c_str(),&SDFMap));
-						mObjSDFSRV.push_back(SDFMap);
+						//0HR(D3DXCreateVolumeTextureFromFile(gd3dDevice, dds.c_str(),&SDFMap));
+						//mObjSDFSRV.push_back(SDFMap);
 				}
 			}
 		}
@@ -725,7 +733,7 @@ void ShadowMapDemo::BuildQuadPlane()
 	vector<VertexPNT> vb;
 	vector<USHORT> ib;
 	VertexPNT origin;
-	origin.pos = D3DXVECTOR3(0, 0, 0);
+	origin.pos = D3DXVECTOR3(0, 7, 0);
 	origin.normal = D3DXVECTOR3(0, 1, 0);
 	for (int i = 0; i < 4; i++)
 	{
@@ -797,7 +805,7 @@ void ShadowMapDemo::BuildGBuffer()
 			0,0,mObjModelVertexCnt[i],
 			0,mObjModelCnt[i] / 3));
 	}
-// 
+
 	D3DXMATRIX e;
 	D3DXMatrixIdentity(&e);
 	HR(mFX->SetValue(mDeferredShading->mtrl, &mWhite, sizeof(Mtrl)));
@@ -821,8 +829,8 @@ void ShadowMapDemo::BuildHIZ()
 	UINT levelCount = ZMap->mMipLevels;
 	D3DSURFACE_DESC  desc;
 	HR(gd3dDevice->BeginScene());
-	HR(gd3dDevice->SetVertexDeclaration(VertexPos::Decl));
-	HR(gd3dDevice->SetStreamSource(0, mDebugTexVB, 0, sizeof(VertexPos)));
+	HR(gd3dDevice->SetVertexDeclaration(VertexPT::Decl));
+	HR(gd3dDevice->SetStreamSource(0, mDebugTexVB, 0, sizeof(VertexPT)));
 	HR(gd3dDevice->SetIndices(mDebugTexIB));
 	for(int i = 1; i < levelCount; i++)
 	{
@@ -839,8 +847,8 @@ void ShadowMapDemo::BuildHIZ()
 		HR(mHIZFX->CommitChanges());
 
 		HR(gd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,
-			0,0,4,
-			0,2));
+			0,0,3,
+			0,1));
 
 		HR(mHIZFX->EndPass());
 		HR(mHIZFX->End());
@@ -855,18 +863,21 @@ void ShadowMapDemo::DebugTexture(IDirect3DTexture9* tex)
 
 	HR(mDebugTexFX->SetTechnique(mhViewARGBTech));
 	HR(mDebugTexFX->SetTexture(mhTexture, tex));
+	HR(mDebugTexFX->SetValue(mhRes, 
+		&D3DXVECTOR2(md3dPP.BackBufferWidth, md3dPP.BackBufferHeight), 
+		sizeof(D3DXVECTOR2)));
 
 	UINT numPasses = 0;
 	HR(mDebugTexFX->Begin(&numPasses, 0));
 	HR(mDebugTexFX->BeginPass(0));
 
-	HR(gd3dDevice->SetVertexDeclaration(VertexPos::Decl));
+	HR(gd3dDevice->SetVertexDeclaration(VertexPT::Decl));
 	HR(mDebugTexFX->CommitChanges());
-	HR(gd3dDevice->SetStreamSource(0, mDebugTexVB, 0, sizeof(VertexPos)));
+	HR(gd3dDevice->SetStreamSource(0, mDebugTexVB, 0, sizeof(VertexPT)));
 	HR(gd3dDevice->SetIndices(mDebugTexIB));
 	HR(gd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,
-		0,0,4,
-		0,2));
+		0,0,3,
+		0,1));
 
 	HR(mDebugTexFX->EndPass());
 	HR(mDebugTexFX->End());
@@ -882,9 +893,13 @@ void ShadowMapDemo::DeferredShadingPass()
 // 	for(UINT idx = 50; idx < 51; idx++)
 // 		SDFShadowPass(idx);
 	BuildHIZ();
-	HR(gd3dDevice->SetRenderTarget(0,mBackBuffer));
-	//DebugTexture(mDeferredShading->mGBuffer1->d3dTex());
-	DebugTexture(mDeferredShading->mDepthMap->d3dTex());
+ 	mSAO->SAOSample(mDebugTexVB, mDebugTexIB,*gCamera
+ 		, mDeferredShading->mDepthMap->d3dTex(), mDeferredShading->mGBuffer0->d3dTex());
+ 	mSAO->SAOBlur(mDebugTexVB, mDebugTexIB);
+ 	HR(gd3dDevice->SetRenderTarget(0,mBackBuffer));
+	//DebugTexture(mDeferredShading->mGBuffer0->d3dTex());
+	//DebugTexture(mSAO->mSAOMapSampled->d3dTex());
+	DebugTexture(mSAO->mSAOMapBlurred1->d3dTex());
 //  	HR(gd3dDevice->BeginScene());	
 //  	mDeferredShading->ShadingBegin();
 //  	HR(mDeferredShading->DeferredShadingFX->SetValue(
@@ -893,7 +908,7 @@ void ShadowMapDemo::DeferredShadingPass()
  	//HR(gd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
  	//mSky->draw();
  	//HR(gd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
- 	HR(gd3dDevice->EndScene());
+ 	//HR(gd3dDevice->EndScene());
 	
 	HR(gd3dDevice->Present(0, 0, 0, 0));
 }

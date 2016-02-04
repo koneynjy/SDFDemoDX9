@@ -132,9 +132,15 @@ void Camera::setLens(float fov, float aspect, float nearZ, float farZ)
 	mAspect = aspect;
 	mFarZ = farZ;
 	mNearZ = nearZ;
-	mNearWindowHeight = 2.0f * mNearZ * tanf( 0.5f*mFovY );
-	mFarWindowHeight  = 2.0f * mFarZ * tanf( 0.5f*mFovY );
+	mNearWindowHeight = 2.0 * mNearZ * tan( 0.5 * mFovY);
+	mFarWindowHeight  = 2.0 * mFarZ * tan( 0.5 * mFovY);
 	D3DXMatrixPerspectiveFovLH(&mProj, fov, aspect, nearZ, farZ);
+// 	ZeroMemory(&mProj, sizeof(mProj));
+// 	mProj.m[0][0] = 1 / (tan(fov * 0.5) * aspect) ;
+// 	mProj.m[1][1] = 1 / tan(fov * 0.5) ;
+// 	mProj.m[2][2] = mFarZ / (double(mFarZ) - double(mNearZ)) ;
+// 	mProj.m[2][3] = 1.0f; 
+// 	mProj.m[3][2] = double(mNearZ) * double(mFarZ) / (double(mNearZ) - double(mFarZ));
 	buildWorldFrustumPlanes();
 	mViewProj = mView * mProj;
 }

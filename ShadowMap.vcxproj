@@ -107,6 +107,7 @@
     <ClCompile Include="MeshLoader\OBJLoader.cpp" />
     <ClCompile Include="MeshLoader\submesh.cpp" />
     <ClCompile Include="MeshLoader\TGALoader.cpp" />
+    <ClCompile Include="SAO.cpp" />
     <ClCompile Include="SDF.cpp" />
     <ClCompile Include="SDFShadow.cpp" />
     <ClCompile Include="sdf\AsyncWork.cpp" />
@@ -215,9 +216,13 @@
   <ItemGroup>
     <CustomBuild Include="FX\SAOBlur.fx">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_2_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
     </CustomBuild>
     <CustomBuild Include="FX\SAOSample.fx">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_2_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

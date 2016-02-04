@@ -16,18 +16,21 @@ sampler TexDepth = sampler_state
 
 struct VertexIn
 {
-	float3 PosH    : POSITION;
+	float3 PosH		: POSITION;
+	float2 tex		: TEXCOORD;
 };
 
 struct VertexOut
 {
 	float4 PosH			: POSITION;
+	float2 texCoords	: TEXCOORD;
 };
 
 VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
 	vout.PosH = float4(vin.PosH.xy, 1.0f, 1.0f);
+	vout.texCoords = vin.tex;
 	return vout;
 }
 
@@ -38,10 +41,10 @@ int pack(int x)
 
 float4 PS(VertexOut pin, in float4 cpos : VPOS) : COLOR0
 {
-	int2 ssP = cpos.xy;
+	int2 ssP = cpos.xy + float2(0.5,0.5);
 	int2 nssp = ssP * 2 + int2(pack(ssP.y), pack(ssP.x));
 	//return float4(0.5,0,0,0);
-	return float4(tex2Dlod(TexDepth, float4(nssp / gInfo.xy, 0, gInfo.z)).r, 0, 0, 0);
+	return float4(tex2Dlod(TexDepth, float4((nssp+float2(0.5,0.5)) / gInfo.xy, 0, gInfo.z)).r, 0, 0, 0);
 }
 
 technique HIZTech

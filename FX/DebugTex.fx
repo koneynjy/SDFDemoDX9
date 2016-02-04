@@ -11,6 +11,7 @@ Texture2D gTexture;
 cbuffer cbPerFrame
 {
 	float d;
+	float2 gRes;
 };
 
 cbuffer cbPerSDF
@@ -27,9 +28,20 @@ sampler TexDepth = sampler_state
 	AddressU  = CLAMP; 
     AddressV  = CLAMP;
 };
+
+sampler TexDepthP = sampler_state
+{
+	Texture = <gTexture>;
+	MinFilter = POINT;
+	MagFilter = POINT;
+	MipFilter = POINT;
+	AddressU  = CLAMP; 
+    AddressV  = CLAMP;
+};
 struct VertexIn
 {
-	float3 PosL    : POSITION;
+	float3 PosL		: POSITION;
+	float2 tex		: TEXCOORD;
 };
 
 struct VertexOut
@@ -44,16 +56,18 @@ VertexOut VS(VertexIn vin)
 
 	//vout.PosH = mul(float4(vin.PosL, 1.0f), gWorldViewProj);
 	vout.PosH = float4(vin.PosL.xy,1.0f, 1.0f);
-	vout.Tex = vin.PosL.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
+	vout.Tex = vin.tex;
 	return vout;
 }
 
-float4 PS(VertexOut pin) : COLOR
+float4 PS(VertexOut pin, in float4 cpos:VPOS) : COLOR0
 { 
 	//uint s = gIntTexture[pin.Tex * int2(800,600)].y;
 	//float sf = s / 255.0f ;
 	//return sf.rrrr;
-	return tex2Dlod(TexDepth, float4(pin.Tex, 0, 2)).rrrr;
+	
+	float4 ao = tex2D(TexDepth,(cpos.xy + float2(0.50,0.50)) / gRes);
+	return ao.rrrr;//((clamp(1.0 - (1.0 - ao) * 0.5, 0.0, 1.0) + 0.1) /  (1.0 + 0.1)).rrrr;
 	//float v = gSDF.Sample(samLinear, float3(pin.Tex.x, 1.0f - pin.Tex.y, d)).r;
 	//if (v > 0)
 	//{
